@@ -23,7 +23,7 @@ Queue *initializeQueue(int size)
     Queue *q = malloc(sizeof(Queue));
     checkNull(q);
     q->size = size;
-    q->front = q->rear = -1;
+    q->front = q->rear = 0;
     q->arr = (int *)malloc(q->size * sizeof(int));
     checkNull(q->arr);
 
@@ -33,8 +33,7 @@ Queue *initializeQueue(int size)
 int isFull(Queue *q)
 {
     // if rear + 1 == front
-    // if front is at -1 and rear at last index
-    if (((q->rear + 1) % q->size == q->front) || (q->front == -1 && q->rear == q->size - 1))
+    if ((q->rear + 1) % q->size == q->front) 
         return 1;
     return 0;
 }
