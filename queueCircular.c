@@ -1,5 +1,7 @@
 #include "queueCircular.h"
 
+int DEQUEUE_STATUS = -1;
+
 void checkNull(void *ptr)
 {
     if (ptr == NULL)
@@ -14,7 +16,7 @@ Queue *initializeQueue(int size)
     Queue *q = malloc(sizeof(Queue));
     checkNull(q);
     q->size = size;
-    q->front = q->rear = 0;
+    q->front = q->rear = -1;
     q->arr = (int *)malloc(q->size * sizeof(int));
     checkNull(q->arr);
 
@@ -24,70 +26,57 @@ Queue *initializeQueue(int size)
 int isFull(Queue *q)
 {
     // if rear + 1 == front
-    if ((q->rear + 1) % q->size == q->front) 
-        return 1;
-    return 0;
+    return ((q->rear + 1) % q->size == q->front);
+}
+
+int isEmpty(Queue *q)
+{
+    return q->rear == q->front;
 }
 
 void enqueue(Queue *q, int value)
 {
     if (isFull(q))
     {
+        // printf("%d %d\n\n",q->front, q->rear);
         printf("Queue overflow\n");
+        return;
     }
-    else
-    {
-        q->rear = (q->rear + 1) % q->size; // circular increment
-        q->arr[q->rear] = value;
-    }
-}
+    
+    if(isEmpty(q))
+        q->front = 0;
 
-int isEmpty(Queue *q)
-{
-    if (q->rear == q->front)
-    {
-        return 1;
-    }
-    return 0;
+    q->rear = (q->rear+1) % q->size; // circular increment
+    q->arr[q->rear] = value;
 }
 
 int dequeue(Queue *q)
 {
-    int status = -1; // return signal
+    int status = DEQUEUE_STATUS;
     if (isEmpty(q))
     {
         printf("Queue underflow\n");
     }
     else
     {
-        q->front = (q->front + 1) % q->size;
-        status = q->arr[q->front];
+        if (q->front == (q->rear + 1) % q->size)
+        {
+            // If there was only one element in the queue
+            q->front = q->rear = -1;
+        }
     }
     return status;
 
-    // on failure returns -1 else return the dequeued value
-    // warning: if dequeued value is -1 and you checking for dequeue status then it may cause some error
+    // on failure returns -1 or user defined value else return the dequeued value
 }
 
 void display(Queue *q)
 {
-    // initializing with front + 1 index
-    int i = (q->front + 1) % q->size;
+    // initializing with front index
+    int i = q->front;
 
-    if (isEmpty(q))
-    {
-        printf("Queue underflow\n");
-        return;
-    }
-    while (i != q->rear + 1)
-    {
-        if (i > q->size - 1)
-        {
-            // skipping if points beyond the array
-            i = (i + 1) % (q->size + 1);
-        }
-        printf("%d\t", q->arr[i]);
-
-        i = (i + 1) % (q->size + 1);
-    }
+    do{
+        printf("%d ",q->arr[i]);
+        i = (i + 1) % q->size;
+    }while(i != (q->rear + 1) % q->size);
 }
